@@ -85,7 +85,6 @@ const onSave = (formData: ClienteFormData) => {
     } else {
       // MODO CREACIÓN: Despacha la acción 'createClient'
       store.dispatch('clients/createClient', formData)
-      alert('Cliente creado con éxito')
     }
 
     // Después de guardar, regresa a la lista

@@ -11,6 +11,17 @@ import * as components from 'vuetify/components' // Todos los componentes (v-btn
 import * as directives from 'vuetify/directives' // Directivas (v-tooltip, etc.)
 import '@mdi/font/css/materialdesignicons.css' // Importa los iconos de Material Design
 
+// --- 1. IMPORTA LAS HERRAMIENTAS ---
+import { defineRule } from 'vee-validate'
+import { required, email, length, numeric } from '@vee-validate/rules'
+
+// --- 2. DEFINE LAS REGLAS QUE USARÁS ---
+// Esto le "enseña" a VeeValidate qué significan esos strings
+defineRule('required', required) // Regla 'required'
+defineRule('email', email) // Regla 'email'
+defineRule('length', length) // Regla 'length' (para el teléfono)
+defineRule('numeric', numeric) // Regla 'numeric' (para el teléfono)
+
 // --- Creación de la instancia de Vuetify ---
 const vuetify = createVuetify({
   components,

@@ -72,23 +72,45 @@ export const clients: Module<ClientState, RootState> = {
     },
   },
 
-  // ---- 5. ACCIONES (¡NUEVO!) ----
-  // Lógica de negocio. Llaman a las mutaciones usando 'commit'.
+  // ---- 5. ACCIONES (¡CON VALIDACIÓN DE DUPLICADOS!) ----
   actions: {
     // C - Crear Cliente
-    // { commit } es una desestructuración del 'context' de Vuex
-    createClient({ commit }, nuevoCliente: Omit<Cliente, 'id'>) {
-      // Aquí iría la lógica de API (axios.post(...))
-      // Como es una simulación, llamamos a la mutación directamente.
-      commit('ADD_CLIENT', nuevoCliente)
+    // 1. Cambiamos la firma para recibir '{ commit, state }'
+    createClient({ commit, state }, nuevoCliente: Omit<Cliente, 'id'>) {
+      // 2. Lógica de validación
+      const emailExists = state.clientes.some(
+        (c) => c.correo.toLowerCase() === nuevoCliente.correo.toLowerCase(),
+      )
+
+      if (emailExists) {
+        // 3. Si existe, lanzamos un error que el componente 'catch'
+        alert('El correo electrónico ya está en uso.')
+      } else {
+        // 4. Si todo está bien, guardamos
+        commit('ADD_CLIENT', nuevoCliente)
+      }
     },
 
     // U - Actualizar Cliente
-    updateClient({ commit }, clienteActualizado: Cliente) {
-      commit('UPDATE_CLIENT', clienteActualizado)
+    updateClient({ commit, state }, clienteActualizado: Cliente) {
+      // 2. Lógica de validación (es diferente para 'actualizar')
+      //    "¿Existe este correo Y pertenece a un ID DIFERENTE al mío?"
+      const emailExists = state.clientes.some(
+        (c) =>
+          c.correo.toLowerCase() === clienteActualizado.correo.toLowerCase() &&
+          c.id !== clienteActualizado.id, // <-- La diferencia
+      )
+
+      if (emailExists) {
+        // 3. Si existe, lanzamos el error
+        throw new Error('El correo electrónico ya está en uso por otro cliente.')
+      }
+
+      // 4. Si todo está bien, guardamos
+      commit('ACTUALIZAR_CLIENTE', clienteActualizado)
     },
 
-    // D - Eliminar Cliente
+    // D - Eliminar Cliente (sin cambios)
     deleteClient({ commit }, clienteId: number) {
       commit('DELETE_CLIENT', clienteId)
     },
