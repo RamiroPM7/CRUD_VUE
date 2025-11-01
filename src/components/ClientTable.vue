@@ -35,29 +35,46 @@
 </template>
 
 <script setup lang="ts">
-// 1. Importamos 'ref' Y 'useDisplay'
+// Importamos 'ref' para crear variables reactivas (headers)
 import { ref } from 'vue'
-import { useDisplay } from 'vuetify' // ¡NUEVO! Importa el hook de display
+// Importamos el hook de Vuetify para detectar el tamaño de la pantalla
+import { useDisplay } from 'vuetify'
+// Importamos la interfaz de 'Cliente' para el tipado de las props
 import type { Cliente } from '../stores/modules/clients'
 
-// 2. Obtenemos el estado de la pantalla
-// 'smAndDown' es un booleano reactivo (true si es móvil, false si no)
+/**
+ * Obtenemos el hook 'useDisplay' de Vuetify.
+ * 'smAndDown' es un booleano reactivo que será 'true' si el viewport
+ * es 'sm' (pequeño) o 'xs' (extra-pequeño), y 'false' en caso contrario.
+ * Esta es la variable que controla qué vista se muestra en el template.
+ */
 const { smAndDown } = useDisplay()
 
-// ---- PROPS (Sin cambios) ----
+/**
+ * defineProps declara los datos que este componente "hijo" (dumb)
+ * recibe de su componente "padre" (smart).
+ * @param clientes - El array de clientes que se va a renderizar.
+ */
 defineProps<{
   clientes: Cliente[]
 }>()
 
-// ---- EMITS (Sin cambios) ----
-// ¡Importante! Los emits son los mismos para la tabla y la lista
+/**
+ * defineEmits declara los eventos que este componente puede "emitir" al padre.
+ * Este componente no tiene lógica de negocio; solo notifica al padre
+ * sobre las interacciones del usuario.
+ */
 const emit = defineEmits<{
-  (e: 'edit', id: number): void
-  (e: 'delete', id: number): void
+  (e: 'edit', id: number): void // Evento al hacer clic en 'editar'
+  (e: 'delete', id: number): void // Evento al hacer clic en 'eliminar'
 }>()
 
-// ---- Headers de la Tabla (Sin cambios) ----
-// (Estos solo se usan para la v-data-table)
+/**
+ * Definición de las columnas (cabeceras) para el componente <v-data-table>.
+ * Esto solo se utiliza en la vista de escritorio.
+ * 'as const' es un truco de TypeScript para que 'align: "start"'
+ * sea tratado como un tipo literal y no como un 'string' genérico.
+ */
 const headers = ref([
   { title: 'ID', key: 'id', align: 'start' as const },
   { title: 'Nombre', key: 'nombre' },

@@ -47,14 +47,23 @@
 </template>
 
 <script setup lang="ts">
-// 1. ¡Importamos 'ref' de vue!
+// Importamos 'ref' de Vue para crear variables de estado reactivas
 import { ref } from 'vue'
+// Importamos el hook 'useDisplay' de Vuetify para la detección de pantalla
 import { useDisplay } from 'vuetify'
 
-// 2. Obtenemos el estado de la pantalla
+/**
+ * Obtenemos el hook 'useDisplay'.
+ * 'smAndDown' es un booleano reactivo (true/false) que nos dice si
+ * la pantalla es 'sm' (pequeña) o 'xs' (extra-pequeña).
+ * Controla la lógica v-if/v-else en el template.
+ */
 const { smAndDown } = useDisplay()
 
-// 3. ¡NUEVO! Creamos una ref para rastrear el estado del menú
-// (false = cerrado, true = abierto)
+/**
+ * Variable de estado reactiva para controlar si el menú móvil
+ * está abierto (true) o cerrado (false).
+ * Se enlaza con el 'v-model' del <v-menu>.
+ */
 const menuOpen = ref(false)
 </script>

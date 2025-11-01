@@ -1,9 +1,10 @@
 import type { Module } from 'vuex'
-import type { State as RootState } from '../index' // Importaremos el tipo raíz más tarde
+import type { State as RootState } from '../index'
 
-// ---- 1. Definición de Tipos (TypeScript) ----
-
-// La entidad Cliente, como la pide el PDF
+/**
+ * Define la forma de la entidad Cliente.
+ * Cumple con los campos: Nombre, Correo Electrónico y Teléfono.
+ */
 export interface Cliente {
   id: number
   nombre: string
@@ -11,7 +12,9 @@ export interface Cliente {
   telefono: string
 }
 
-// Cómo lucirá el estado de ESTE módulo
+/**
+ * Define la forma del estado para este módulo específico.
+ */
 export interface ClientState {
   clientes: Cliente[]
 }
@@ -22,15 +25,21 @@ let nextId = 1
 // ---- 2. Configuración del Módulo ----
 
 export const clients: Module<ClientState, RootState> = {
-  // 'namespaced: true' es crucial para módulos.
-  // Hace que este módulo sea autocontenido.
+  /**
+   * 'namespaced: true' es crucial.
+   * Obliga a usar el prefijo 'clients/' (ej. 'clients/createClient').
+   * Esto evita colisiones si la app crece (ej. 'products/createProduct').
+   */
   namespaced: true,
 
   // ---- 3. El ESTADO (STATE) ----
-  // Aquí es donde viven los datos.
+  /**
+   * El estado inicial de este módulo.
+   * Actúa como nuestra "base de datos" simulada.
+   */
   state: (): ClientState => ({
     clientes: [
-      // Datos de ejemplo para simular persistencia [cite: 11]
+      // Datos de ejemplo para simular persistencia
       {
         id: nextId++,
         nombre: 'Juan Pérez (Ejemplo)',
@@ -47,9 +56,12 @@ export const clients: Module<ClientState, RootState> = {
   }),
 
   // ---- 4. Las MUTACIONES (MUTATIONS) ----
-  // Funciones síncronas que CAMBIAN el estado.
+  /**
+   * Mutaciones son las ÚNICAS funciones que pueden MODIFICAR el estado.
+   * Deben ser siempre síncronas.
+   */
   mutations: {
-    // C - Crear Cliente
+    // Crea un nuevo cliente en el array de estado
     ADD_CLIENT(state, nuevoCliente: Omit<Cliente, 'id'>) {
       const clienteConId: Cliente = {
         id: nextId++,
@@ -58,7 +70,7 @@ export const clients: Module<ClientState, RootState> = {
       state.clientes.push(clienteConId)
     },
 
-    // U - Actualizar Cliente
+    // Actualiza un cliente existente en el array
     UPDATE_CLIENT(state, clienteActualizado: Cliente) {
       const index = state.clientes.findIndex((c) => c.id === clienteActualizado.id)
       if (index !== -1) {
@@ -66,16 +78,22 @@ export const clients: Module<ClientState, RootState> = {
       }
     },
 
-    // D - Eliminar Cliente
+    //Elimina un cliente del array por su ID
     DELETE_CLIENT(state, clienteId: number) {
       state.clientes = state.clientes.filter((c) => c.id !== clienteId)
     },
   },
 
-  // ---- 5. ACCIONES (¡CON VALIDACIÓN DE DUPLICADOS!) ----
+  /**
+   * Acciones son funciones (potencialmente asíncronas) que
+   * contienen la lógica de negocio (como validaciones) y llaman
+   * a las mutaciones.
+   */
   actions: {
-    // C - Crear Cliente
-    // 1. Cambiamos la firma para recibir '{ commit, state }'
+    /**
+     * (C) Valida y crea un nuevo cliente.
+     * Lanza un error si el correo ya existe.
+     */
     createClient({ commit, state }, nuevoCliente: Omit<Cliente, 'id'>) {
       // 2. Lógica de validación
       const emailExists = state.clientes.some(
@@ -91,10 +109,11 @@ export const clients: Module<ClientState, RootState> = {
       }
     },
 
-    // U - Actualizar Cliente
+    /**
+     * Valida y actualiza un cliente.
+     * Lanza un error si el correo es usado por OTRO cliente.
+     */
     updateClient({ commit, state }, clienteActualizado: Cliente) {
-      // 2. Lógica de validación (es diferente para 'actualizar')
-      //    "¿Existe este correo Y pertenece a un ID DIFERENTE al mío?"
       const emailExists = state.clientes.some(
         (c) =>
           c.correo.toLowerCase() === clienteActualizado.correo.toLowerCase() &&
@@ -103,14 +122,13 @@ export const clients: Module<ClientState, RootState> = {
 
       if (emailExists) {
         // 3. Si existe, lanzamos el error
-        throw new Error('El correo electrónico ya está en uso por otro cliente.')
+        alert('El correo electrónico ya está en uso por otro cliente.')
+      } else {
+        // 4. Si todo está bien, guardamos
+        commit('ACTUALIZAR_CLIENTE', clienteActualizado)
       }
-
-      // 4. Si todo está bien, guardamos
-      commit('ACTUALIZAR_CLIENTE', clienteActualizado)
     },
 
-    // D - Eliminar Cliente (sin cambios)
     deleteClient({ commit }, clienteId: number) {
       commit('DELETE_CLIENT', clienteId)
     },

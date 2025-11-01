@@ -15,30 +15,55 @@
 </template>
 
 <script setup lang="ts">
-// ---- 1. PROPS (Datos que entran) ----
-// Definimos las props que el padre puede pasarle
+/**
+ * defineProps declara las propiedades que este componente reutilizable
+ * acepta desde su componente padre.
+ */
 const props = defineProps<{
-  modelValue: boolean // Para el v-model
+  /** * Controla si el diálogo está visible o no.
+   * Es la prop estándar para implementar 'v-model'.
+   */
+  modelValue: boolean
+  /** El texto que se mostrará en el título del modal. */
   title: string
+  /** El texto que se mostrará en el cuerpo del modal. */
   message: string
 }>()
 
-// ---- 2. EMITS (Eventos que salen) ----
+/**
+ * defineEmits declara los eventos personalizados que este componente
+ * puede "emitir" hacia su componente padre.
+ */
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void // Para el v-model
+  /** * Evento especial para 'v-model'. Se emite para notificar al padre
+   * que 'modelValue' debe cambiar (ej. a 'false' para cerrar).
+   */
+  (e: 'update:modelValue', value: boolean): void
+  /** * Se emite cuando el usuario hace clic en el botón de confirmar ("Aceptar").
+   */
   (e: 'confirm'): void
+  /** * Se emite cuando el usuario hace clic en el botón de cancelar.
+   */
   (e: 'cancel'): void
 }>()
 
-// ---- 3. Manejadores de Eventos ----
-
+/**
+ * Se ejecuta cuando el usuario hace clic en el botón "Aceptar".
+ */
 function onConfirm() {
+  // Notifica al padre que la acción fue confirmada
   emit('confirm')
-  emit('update:modelValue', false) // Cierra el diálogo
+  // Emite el evento para cerrar el diálogo (actualiza el v-model a false)
+  emit('update:modelValue', false)
 }
 
+/**
+ * Se ejecuta cuando el usuario hace clic en el botón "Cancelar".
+ */
 function onCancel() {
-  emit('cancel') // Opcional, por si el padre quiere saber
-  emit('update:modelValue', false) // Cierra el diálogo
+  // Notifica al padre que la acción fue cancelada (opcional)
+  emit('cancel')
+  // Emite el evento para cerrar el diálogo (actualiza el v-model a false)
+  emit('update:modelValue', false)
 }
 </script>
